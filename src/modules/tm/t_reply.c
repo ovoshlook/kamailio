@@ -1382,7 +1382,6 @@ static enum rps t_should_relay_response(struct cell *Trans, int new_code,
 	 * not relayed because it's not an INVITE transaction;
 	 * >= 300 are not relayed because 200 was already sent out
 	*/
-
 	LM_DBG("->>>>>>>>> T_code=%d, new_code=%d\n",Trans->uas.status,new_code);
 	inv_through = new_code >= 200 && new_code < 300 && is_invite(Trans);
 	/* if final response sent out, allow only INVITE 2xx && REGISTER > 299 */
@@ -1394,11 +1393,14 @@ static enum rps t_should_relay_response(struct cell *Trans, int new_code,
 			*should_relay = branch;
 			return RPS_PUSHED_AFTER_COMPLETION;
 		} 		
-		/* Do not discard negative replies for REGSITER messages 
-		 * after 200 for the initial trasaction already been sent.
-		 * In case of forking REGISGER requests to multiple Registrars
-		 * some of registrars may reply later than others being authenticated.
-		 * This lests late forked transactions being finalised correctly
+		/* Do not discard negative replies for forked REGISTER messages
+		 * if 200 status for initial trasaction already been set.
+		 * In case of REGISTER request is forked to multiple Registrars
+		 * some of registrars may reply with AUTH response later than others. 
+		 * Without this code negative replies will be just discarded silently.
+		 * This part lests late negative replies for forked REGISTERs being treated
+		 * the same way negative replies for INVITE requests are treated 
+		 * However it won't be propagated to UAC, as transacton status already 200.
 		*/
 		if(!(strncmp(Trans->method.s, "REGISTER", 8) == 0 && new_code >= 300)) {
 			/*Except the exceptions above, too late  messages will be discarded */

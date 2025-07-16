@@ -1382,7 +1382,7 @@ static enum rps t_should_relay_response(struct cell *Trans, int new_code,
 	 * not relayed because it's not an INVITE transaction;
 	 * >= 300 are not relayed because 200 was already sent out
 	*/
-	LM_DBG("->>>>>>>>> T_code=%d, new_code=%d\n",Trans->uas.status,new_code);
+	LM_DBG("->>>>>>>>> T_code=%d, new_code=%d\n", Trans->uas.status,new_code);
 	inv_through = new_code >= 200 && new_code < 300 && is_invite(Trans);
 	/* if final response sent out, allow only INVITE 2xx && REGISTER > 299 */
 	if(Trans->uas.status >= 200) {
